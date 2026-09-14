@@ -9,6 +9,7 @@ function MetricCard({
   value,
   Icon,
   trend,
+  color,
 }: {
   label: string;
   value: number;
