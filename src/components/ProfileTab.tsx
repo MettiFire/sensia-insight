@@ -1,14 +1,9 @@
 import { useState } from "react";
-import { Check, Copy, Moon, RotateCcw, Sun, UserRound } from "lucide-react";
+import { Moon, RotateCcw, Sun, UserRound } from "lucide-react";
 import { useTranslation, type Lang } from "@/context/LanguageContext";
 import { useTheme } from "@/context/ThemeContext";
 import { ACCENT, Card, SectionTitle } from "@/components/ui-kit";
-import type {
-  CognitiveMetrics,
-  ConnectionState,
-  GarminRawBiometrics,
-  UserProfile,
-} from "@/types/sensia";
+import type { UserProfile } from "@/types/sensia";
 import { cn } from "@/lib/utils";
 
 const inputClass =
@@ -18,53 +13,15 @@ export function ProfileTab({
   profile,
   onSave,
   onReset,
-  garmin,
-  cognitive,
-  connection,
 }: {
   profile: UserProfile;
   onSave: (p: UserProfile) => void;
   onReset: () => void;
-  garmin: GarminRawBiometrics;
-  cognitive: CognitiveMetrics;
-  connection: ConnectionState;
 }) {
   const { t, lang, setLang } = useTranslation();
   const { theme, setTheme, isDark } = useTheme();
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(profile);
-  const [copied, setCopied] = useState(false);
-
-  const payload = JSON.stringify(
-    {
-      source: "garmin_connect",
-      endpoint: "https://api.sensia.bio/v1/cognitive/stream",
-      connection,
-      raw: garmin,
-      sensia_output: {
-        ...cognitive,
-        cScore: Number(cognitive.cScore.toFixed(1)),
-        memory: Number(cognitive.memory.toFixed(1)),
-        reasoning: Number(cognitive.reasoning.toFixed(1)),
-        attention: Number(cognitive.attention.toFixed(1)),
-        cognitiveStress: Number(cognitive.cognitiveStress.toFixed(1)),
-        arousal: Number(cognitive.arousal.toFixed(3)),
-        valence: Number(cognitive.valence.toFixed(3)),
-      },
-    },
-    null,
-    2,
-  );
-
-  const copy = async () => {
-    try {
-      await navigator.clipboard.writeText(payload);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1600);
-    } catch {
-      /* ignore */
-    }
-  };
 
   const genderLabel =
     profile.gender === "M" ? t("male") : profile.gender === "F" ? t("female") : t("other");
@@ -79,7 +36,7 @@ export function ProfileTab({
 
   return (
     <div className="flex flex-col gap-5 px-5 pb-6 pt-3">
-      <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100">
+      <h1 className="text-3xl font-black text-slate-900 dark:text-slate-100">
         {t("tabProfile")}
       </h1>
 
@@ -204,29 +161,6 @@ export function ProfileTab({
             <Sun className="h-3.5 w-3.5" /> {t("lightTheme")}
           </button>
         </div>
-      </div>
-
-      <div>
-        <SectionTitle>{t("inspector")}</SectionTitle>
-        <Card className="p-0">
-          <div className="flex items-center justify-between border-b border-slate-200 px-3 py-2 dark:border-slate-800">
-            <span className="font-mono text-[10px] text-slate-500 dark:text-slate-400">
-              sensia.bio/v1/stream
-            </span>
-            <button
-              type="button"
-              onClick={copy}
-              className="flex items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-semibold text-white"
-              style={{ background: ACCENT }}
-            >
-              {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
-              {copied ? t("copied") : t("copyJson")}
-            </button>
-          </div>
-          <pre className="max-h-64 overflow-auto rounded-b-2xl bg-slate-950 p-3 font-mono text-[10px] leading-relaxed text-emerald-300">
-            {payload}
-          </pre>
-        </Card>
       </div>
 
       <button

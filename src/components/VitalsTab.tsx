@@ -5,24 +5,72 @@ import type { GarminRawBiometrics } from "@/types/sensia";
 
 function Sparkline({ data }: { data: number[] }) {
   const w = 320;
-  const h = 90;
-  const min = Math.min(...data) - 3;
-  const max = Math.max(...data) + 3;
+  const h = 110;
+  const padL = 34;
+  const padR = 8;
+  const padT = 8;
+  const padB = 18;
+  const iw = w - padL - padR;
+  const ih = h - padT - padB;
+  const rawMin = Math.min(...data);
+  const rawMax = Math.max(...data);
+  const min = Math.floor((rawMin - 4) / 5) * 5;
+  const max = Math.ceil((rawMax + 4) / 5) * 5;
   const pts = data.map((v, i) => {
-    const x = (i / Math.max(1, data.length - 1)) * w;
-    const y = h - ((v - min) / Math.max(1, max - min)) * h;
+    const x = padL + (i / Math.max(1, data.length - 1)) * iw;
+    const y = padT + ih - ((v - min) / Math.max(1, max - min)) * ih;
     return [x, y] as const;
   });
   const line = pts.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(" ");
-  const area = `0,${h} ${line} ${w},${h}`;
+  const area = `${padL},${padT + ih} ${line} ${padL + iw},${padT + ih}`;
+  const yTicks = [min, Math.round((min + max) / 2), max];
   return (
-    <svg viewBox={`0 0 ${w} ${h}`} className="h-24 w-full" preserveAspectRatio="none">
+    <svg viewBox={`0 0 ${w} ${h}`} className="h-32 w-full">
       <defs>
         <linearGradient id="hrGrad" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor={ACCENT} stopOpacity="0.45" />
           <stop offset="100%" stopColor={ACCENT} stopOpacity="0" />
         </linearGradient>
       </defs>
+      {yTicks.map((v) => {
+        const y = padT + ih - ((v - min) / Math.max(1, max - min)) * ih;
+        return (
+          <g key={v}>
+            <line
+              x1={padL}
+              x2={padL + iw}
+              y1={y}
+              y2={y}
+              stroke="currentColor"
+              strokeOpacity="0.15"
+              strokeDasharray="3 4"
+            />
+            <text
+              x={padL - 5}
+              y={y + 3}
+              textAnchor="end"
+              fontSize="9"
+              fill="currentColor"
+              opacity="0.55"
+            >
+              {v}
+            </text>
+          </g>
+        );
+      })}
+      <text x={padL} y={h - 4} fontSize="9" fill="currentColor" opacity="0.55">
+        -200s
+      </text>
+      <text
+        x={padL + iw}
+        y={h - 4}
+        textAnchor="end"
+        fontSize="9"
+        fill="currentColor"
+        opacity="0.55"
+      >
+        0s
+      </text>
       <polygon points={area} fill="url(#hrGrad)" />
       <polyline
         points={line}
@@ -32,6 +80,13 @@ function Sparkline({ data }: { data: number[] }) {
         strokeLinejoin="round"
         strokeLinecap="round"
       />
+      {pts.map(([x, y], i) =>
+        i === pts.length - 1 ? (
+          <circle key={i} cx={x} cy={y} r="3.5" fill={ACCENT} strokeWidth="1.5" stroke="#fff" />
+        ) : (
+          <circle key={i} cx={x} cy={y} r="1.6" fill={ACCENT} opacity="0.65" />
+        ),
+      )}
     </svg>
   );
 }
@@ -77,7 +132,7 @@ export function VitalsTab({
 
   return (
     <div className="flex flex-col gap-5 px-5 pb-6 pt-3">
-      <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100">
+      <h1 className="text-3xl font-black text-slate-900 dark:text-slate-100">
         Garmin Vitals
       </h1>
 
@@ -101,7 +156,6 @@ export function VitalsTab({
           <span>
             {t("hrv")} · {garmin.hrv} {t("ms")}
           </span>
-          <span>60s</span>
         </div>
       </Card>
 
@@ -155,16 +209,23 @@ export function VitalsTab({
             {t("totalHours")}: {sleepHours.toFixed(1)}h
           </p>
           <div className="mt-3 flex h-2.5 overflow-hidden rounded-full">
-            <div className="bg-[#6d5ffc]" style={{ width: "24%" }} />
-            <div className="bg-[#6d5ffc]/60" style={{ width: "48%" }} />
-            <div className="bg-emerald-500/70" style={{ width: "21%" }} />
-            <div className="bg-slate-400/60" style={{ width: "7%" }} />
+            <div className="bg-indigo-600" style={{ width: "24%" }} />
+            <div className="bg-sky-400" style={{ width: "48%" }} />
+            <div className="bg-amber-400" style={{ width: "21%" }} />
+            <div className="bg-slate-400" style={{ width: "7%" }} />
           </div>
           <div className="mt-2 grid grid-cols-4 text-center text-[10px] text-slate-500 dark:text-slate-400">
-            <span>{t("deep")} 24%</span>
-            <span>{t("lightSleep")} 48%</span>
-            <span>{t("rem")} 21%</span>
-            <span>{t("awake")} 7%</span>
+            {[
+              [t("deep"), "24%", "bg-indigo-600"],
+              [t("lightSleep"), "48%", "bg-sky-400"],
+              [t("rem"), "21%", "bg-amber-400"],
+              [t("awake"), "7%", "bg-slate-400"],
+            ].map(([label, pct, dot]) => (
+              <span key={label} className="flex items-center justify-center gap-1">
+                <span className={`h-1.5 w-1.5 rounded-full ${dot}`} />
+                {label} {pct}
+              </span>
+            ))}
           </div>
         </Card>
       </div>
