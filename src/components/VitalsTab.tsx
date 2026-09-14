@@ -3,29 +3,38 @@ import { useTranslation } from "@/context/LanguageContext";
 import { ACCENT, Bar, Card, SectionTitle } from "@/components/ui-kit";
 import type { GarminRawBiometrics } from "@/types/sensia";
 
-function Sparkline({ data }: { data: number[] }) {
+function Sparkline({ data }: { data: { value: number; at: number }[] }) {
   const w = 320;
-  const h = 110;
-  const padL = 34;
+  const h = 120;
+  const padL = 38;
   const padR = 8;
   const padT = 8;
-  const padB = 18;
+  const padB = 26;
   const iw = w - padL - padR;
   const ih = h - padT - padB;
-  const rawMin = Math.min(...data);
-  const rawMax = Math.max(...data);
+  const values = data.map((d) => d.value);
+  const rawMin = Math.min(...values);
+  const rawMax = Math.max(...values);
   const min = Math.floor((rawMin - 4) / 5) * 5;
   const max = Math.ceil((rawMax + 4) / 5) * 5;
-  const pts = data.map((v, i) => {
+  const pts = data.map((d, i) => {
     const x = padL + (i / Math.max(1, data.length - 1)) * iw;
-    const y = padT + ih - ((v - min) / Math.max(1, max - min)) * ih;
+    const y = padT + ih - ((d.value - min) / Math.max(1, max - min)) * ih;
     return [x, y] as const;
   });
   const line = pts.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(" ");
   const area = `${padL},${padT + ih} ${line} ${padL + iw},${padT + ih}`;
   const yTicks = [min, Math.round((min + max) / 2), max];
+
+  const formatTime = (ts: number) => {
+    const d = new Date(ts);
+    return `${d.getHours().toString().padStart(2, "0")}:${d.getMinutes().toString().padStart(2, "0")}`;
+  };
+  const n = data.length;
+  const xTickIdx = [0, Math.floor(n / 4), Math.floor(n / 2), Math.floor((3 * n) / 4), n - 1];
+
   return (
-    <svg viewBox={`0 0 ${w} ${h}`} className="h-32 w-full">
+    <svg viewBox={`0 0 ${w} ${h}`} className="h-36 w-full">
       <defs>
         <linearGradient id="hrGrad" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor={ACCENT} stopOpacity="0.45" />
@@ -58,19 +67,39 @@ function Sparkline({ data }: { data: number[] }) {
           </g>
         );
       })}
-      <text x={padL} y={h - 4} fontSize="9" fill="currentColor" opacity="0.55">
-        -200s
-      </text>
-      <text
-        x={padL + iw}
-        y={h - 4}
-        textAnchor="end"
-        fontSize="9"
-        fill="currentColor"
-        opacity="0.55"
-      >
-        0s
-      </text>
+      <line
+        x1={padL}
+        x2={padL + iw}
+        y1={padT + ih}
+        y2={padT + ih}
+        stroke="currentColor"
+        strokeOpacity="0.25"
+      />
+      {xTickIdx.map((i) => {
+        const x = padL + (i / Math.max(1, n - 1)) * iw;
+        return (
+          <g key={i}>
+            <line
+              x1={x}
+              x2={x}
+              y1={padT + ih}
+              y2={padT + ih + 4}
+              stroke="currentColor"
+              strokeOpacity="0.35"
+            />
+            <text
+              x={x}
+              y={h - 6}
+              textAnchor="middle"
+              fontSize="9"
+              fill="currentColor"
+              opacity="0.6"
+            >
+              {formatTime(data[i].at)}
+            </text>
+          </g>
+        );
+      })}
       <polygon points={area} fill="url(#hrGrad)" />
       <polyline
         points={line}
