@@ -154,7 +154,7 @@ export function VitalsTab({
   history,
 }: {
   garmin: GarminRawBiometrics;
-  history: number[];
+  history: { value: number; at: number }[];
 }) {
   const { t } = useTranslation();
   const sleepHours = (garmin.sleepScore / 100) * 8.4;
