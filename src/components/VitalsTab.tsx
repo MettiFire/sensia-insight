@@ -5,24 +5,72 @@ import type { GarminRawBiometrics } from "@/types/sensia";
 
 function Sparkline({ data }: { data: number[] }) {
   const w = 320;
-  const h = 90;
-  const min = Math.min(...data) - 3;
-  const max = Math.max(...data) + 3;
+  const h = 110;
+  const padL = 34;
+  const padR = 8;
+  const padT = 8;
+  const padB = 18;
+  const iw = w - padL - padR;
+  const ih = h - padT - padB;
+  const rawMin = Math.min(...data);
+  const rawMax = Math.max(...data);
+  const min = Math.floor((rawMin - 4) / 5) * 5;
+  const max = Math.ceil((rawMax + 4) / 5) * 5;
   const pts = data.map((v, i) => {
-    const x = (i / Math.max(1, data.length - 1)) * w;
-    const y = h - ((v - min) / Math.max(1, max - min)) * h;
+    const x = padL + (i / Math.max(1, data.length - 1)) * iw;
+    const y = padT + ih - ((v - min) / Math.max(1, max - min)) * ih;
     return [x, y] as const;
   });
   const line = pts.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(" ");
-  const area = `0,${h} ${line} ${w},${h}`;
+  const area = `${padL},${padT + ih} ${line} ${padL + iw},${padT + ih}`;
+  const yTicks = [min, Math.round((min + max) / 2), max];
   return (
-    <svg viewBox={`0 0 ${w} ${h}`} className="h-24 w-full" preserveAspectRatio="none">
+    <svg viewBox={`0 0 ${w} ${h}`} className="h-32 w-full">
       <defs>
         <linearGradient id="hrGrad" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor={ACCENT} stopOpacity="0.45" />
           <stop offset="100%" stopColor={ACCENT} stopOpacity="0" />
         </linearGradient>
       </defs>
+      {yTicks.map((v) => {
+        const y = padT + ih - ((v - min) / Math.max(1, max - min)) * ih;
+        return (
+          <g key={v}>
+            <line
+              x1={padL}
+              x2={padL + iw}
+              y1={y}
+              y2={y}
+              stroke="currentColor"
+              strokeOpacity="0.15"
+              strokeDasharray="3 4"
+            />
+            <text
+              x={padL - 5}
+              y={y + 3}
+              textAnchor="end"
+              fontSize="9"
+              fill="currentColor"
+              opacity="0.55"
+            >
+              {v}
+            </text>
+          </g>
+        );
+      })}
+      <text x={padL} y={h - 4} fontSize="9" fill="currentColor" opacity="0.55">
+        -200s
+      </text>
+      <text
+        x={padL + iw}
+        y={h - 4}
+        textAnchor="end"
+        fontSize="9"
+        fill="currentColor"
+        opacity="0.55"
+      >
+        0s
+      </text>
       <polygon points={area} fill="url(#hrGrad)" />
       <polyline
         points={line}
@@ -32,6 +80,13 @@ function Sparkline({ data }: { data: number[] }) {
         strokeLinejoin="round"
         strokeLinecap="round"
       />
+      {pts.map(([x, y], i) =>
+        i === pts.length - 1 ? (
+          <circle key={i} cx={x} cy={y} r="3.5" fill={ACCENT} strokeWidth="1.5" stroke="#fff" />
+        ) : (
+          <circle key={i} cx={x} cy={y} r="1.6" fill={ACCENT} opacity="0.65" />
+        ),
+      )}
     </svg>
   );
 }
