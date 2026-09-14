@@ -19,7 +19,9 @@ export function Onboarding({ onDone }: { onDone: (p: UserProfile) => void }) {
     heightCm: "",
   });
   const [garmin, setGarmin] = useState<"idle" | "loading" | "done">("idle");
-  const [touched, setTouched] = useState(false);
+  const [touchedAll, setTouchedAll] = useState(false);
+  const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>({});
+  const showError = (key: string) => touchedAll || touchedFields[key];
 
   const errors = {
     fullName: form.fullName.trim().length < 2,
@@ -37,26 +39,43 @@ export function Onboarding({ onDone }: { onDone: (p: UserProfile) => void }) {
   const field = (
     key: "fullName" | "age" | "weightKg" | "heightCm",
     label: string,
+    hintKey: "hintName" | "hintAge" | "hintWeight" | "hintHeight",
     type = "text",
-  ) => (
-    <div>
-      <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
-        {label}
-      </label>
-      <input
-        type={type}
-        inputMode={type === "number" ? "numeric" : "text"}
-        value={form[key]}
-        onChange={(e) => setForm({ ...form, [key]: e.target.value })}
-        className={cn(inputClass, touched && errors[key] && "border-red-500")}
-      />
-      {touched && errors[key] ? (
-        <p className="mt-1 text-[11px] text-red-500">
-          {form[key] ? t("invalid") : t("required")}
-        </p>
-      ) : null}
-    </div>
-  );
+  ) => {
+    const hasError = showError(key) && errors[key];
+    const isOk = form[key] !== "" && !errors[key];
+    return (
+      <div>
+        <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
+          {label}
+        </label>
+        <input
+          type={type}
+          inputMode={type === "number" ? "numeric" : "text"}
+          value={form[key]}
+          onChange={(e) => {
+            setForm({ ...form, [key]: e.target.value });
+            setTouchedFields((prev) => ({ ...prev, [key]: true }));
+          }}
+          onBlur={() => setTouchedFields((prev) => ({ ...prev, [key]: true }))}
+          className={cn(
+            inputClass,
+            hasError && "border-red-500 focus:border-red-500",
+            isOk && "border-emerald-500 focus:border-emerald-500",
+          )}
+        />
+        {hasError ? (
+          <p className="mt-1 text-[11px] font-medium text-red-500">
+            {form[key] ? `${t("invalid")} · ${t(hintKey)}` : t("required")}
+          </p>
+        ) : (
+          <p className="mt-1 text-[11px] text-slate-400 dark:text-slate-500">
+            {t(hintKey)}
+          </p>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-5 pb-8">
@@ -104,9 +123,9 @@ export function Onboarding({ onDone }: { onDone: (p: UserProfile) => void }) {
             {t("personalData")}
           </h2>
           <div className="grid gap-3">
-            {field("fullName", t("fullName"))}
+            {field("fullName", t("fullName"), "hintName")}
             <div className="grid grid-cols-2 gap-3">
-              {field("age", t("age"), "number")}
+              {field("age", t("age"), "hintAge", "number")}
               <div>
                 <label className="mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400">
                   {t("gender")}
@@ -125,8 +144,8 @@ export function Onboarding({ onDone }: { onDone: (p: UserProfile) => void }) {
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
-              {field("weightKg", t("weight"), "number")}
-              {field("heightCm", t("height"), "number")}
+              {field("weightKg", t("weight"), "hintWeight", "number")}
+              {field("heightCm", t("height"), "hintHeight", "number")}
             </div>
           </div>
 
@@ -171,7 +190,7 @@ export function Onboarding({ onDone }: { onDone: (p: UserProfile) => void }) {
           <button
             type="button"
             onClick={() => {
-              setTouched(true);
+              setTouchedAll(true);
               if (!valid) return;
               onDone({
                 fullName: form.fullName.trim(),

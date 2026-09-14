@@ -110,7 +110,7 @@ export function useSensiaStream(enabled = true) {
         lastSync: new Date().toISOString(),
         apiLatencyMs: Math.round(drift(c.apiLatencyMs, 22, 18, 140)),
       }));
-    }, 1500);
+    }, 5000);
     return () => clearInterval(id);
   }, [enabled, connection.isLive]);
 

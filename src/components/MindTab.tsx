@@ -9,18 +9,23 @@ function MetricCard({
   value,
   Icon,
   trend,
+  color,
 }: {
   label: string;
   value: number;
   Icon: typeof Brain;
   trend: number;
+  color: string;
 }) {
   const up = trend >= 0;
   return (
     <Card className="flex flex-col gap-2">
       <div className="flex items-center justify-between">
-        <div className="grid h-8 w-8 place-items-center rounded-lg bg-[#6d5ffc]/10">
-          <Icon className="h-4 w-4" style={{ color: ACCENT }} />
+        <div
+          className="grid h-8 w-8 place-items-center rounded-lg"
+          style={{ background: `${color}1a` }}
+        >
+          <Icon className="h-4 w-4" style={{ color }} />
         </div>
         <span
           className={cn(
@@ -38,7 +43,7 @@ function MetricCard({
       <div className="text-[11px] font-medium text-slate-600 dark:text-slate-400">
         {label}
       </div>
-      <Bar value={value} />
+      <Bar value={value} color={color} />
     </Card>
   );
 }
@@ -71,7 +76,7 @@ export function MindTab({
     <div className="flex flex-col gap-5 px-5 pb-6 pt-2">
       <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
         <div className="min-w-0">
-          <p className="truncate text-xl font-bold text-slate-900 dark:text-slate-100">
+          <p className="truncate text-3xl font-black text-slate-900 dark:text-slate-100">
             {t("hello")}, {name}
           </p>
           <button
@@ -121,24 +126,28 @@ export function MindTab({
             value={cognitive.memory}
             Icon={Brain}
             trend={cognitive.memory - 70}
+            color="#6d5ffc"
           />
           <MetricCard
             label={t("reasoning")}
             value={cognitive.reasoning}
             Icon={Cpu}
             trend={cognitive.reasoning - 70}
+            color="#0ea5e9"
           />
           <MetricCard
             label={t("attention")}
             value={cognitive.attention}
             Icon={Target}
             trend={cognitive.attention - 70}
+            color="#f59e0b"
           />
           <MetricCard
             label={t("cScore")}
             value={cognitive.cScore}
             Icon={Radio}
             trend={cognitive.cScore - 70}
+            color="#10b981"
           />
         </div>
       </div>
