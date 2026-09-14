@@ -70,9 +70,6 @@ function SensiaApp() {
               reset();
               setTab("mind");
             }}
-            garmin={garmin}
-            cognitive={cognitive}
-            connection={connection}
           />
         ) : null}
       </main>
