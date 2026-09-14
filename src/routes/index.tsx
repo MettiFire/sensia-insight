@@ -1,24 +1,92 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
+import { LanguageProvider } from "@/context/LanguageContext";
+import { ThemeProvider } from "@/context/ThemeContext";
+import { PhoneFrame } from "@/components/PhoneFrame";
+import { Onboarding } from "@/components/Onboarding";
+import { BottomNav, type TabId } from "@/components/BottomNav";
+import { MindTab } from "@/components/MindTab";
+import { VitalsTab } from "@/components/VitalsTab";
+import { ProfileTab } from "@/components/ProfileTab";
+import { useProfile } from "@/hooks/useProfile";
+import { useSensiaStream } from "@/hooks/useSensiaStream";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "Sensia — Biometria cognitiva ed emotiva in tempo reale" },
+      {
+        name: "description",
+        content:
+          "Sensia acquisisce i biometrici Garmin ed elabora metriche cognitive ed emotive in tempo reale tramite le API Sensia.bio.",
+      },
+      { property: "og:title", content: "Sensia — Cognitive & Emotional Biometrics" },
+      {
+        property: "og:description",
+        content:
+          "Streaming live di C-Score, memoria, ragionamento, attenzione, arousal e valenza dai dati Garmin.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
+function SensiaApp() {
+  const { profile, setProfile, reset, loaded } = useProfile();
+  const [tab, setTab] = useState<TabId>("mind");
+  const { garmin, cognitive, connection, history, toggleLive } = useSensiaStream(
+    Boolean(profile),
+  );
+
+  if (!loaded) return <PhoneFrame>{null}</PhoneFrame>;
+
+  if (!profile) {
+    return (
+      <PhoneFrame>
+        <Onboarding onDone={setProfile} />
+      </PhoneFrame>
+    );
+  }
+
+  return (
+    <PhoneFrame>
+      <main className="min-h-0 flex-1 overflow-y-auto">
+        {tab === "mind" ? (
+          <MindTab
+            name={profile.fullName.split(" ")[0] ?? profile.fullName}
+            cognitive={cognitive}
+            connection={connection}
+            onToggleLive={toggleLive}
+          />
+        ) : null}
+        {tab === "vitals" ? <VitalsTab garmin={garmin} history={history} /> : null}
+        {tab === "profile" ? (
+          <ProfileTab
+            profile={profile}
+            onSave={setProfile}
+            onReset={() => {
+              reset();
+              setTab("mind");
+            }}
+            garmin={garmin}
+            cognitive={cognitive}
+            connection={connection}
+          />
+        ) : null}
+      </main>
+      <BottomNav active={tab} onChange={setTab} />
+    </PhoneFrame>
+  );
+}
+
 function Index() {
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
+    <ThemeProvider>
+      <LanguageProvider>
+        <SensiaApp />
+      </LanguageProvider>
+    </ThemeProvider>
   );
 }
