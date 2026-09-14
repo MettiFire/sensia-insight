@@ -122,7 +122,7 @@ export function RadialGauge({
   );
 }
 
-export function Bar({ value, className }: { value: number; className?: string }) {
+export function Bar({ value, className, color = ACCENT }: { value: number; className?: string; color?: string }) {
   return (
     <div
       className={cn(
@@ -134,7 +134,7 @@ export function Bar({ value, className }: { value: number; className?: string })
         className="h-full rounded-full transition-all duration-700"
         style={{
           width: `${Math.max(0, Math.min(100, value))}%`,
-          background: `linear-gradient(90deg, ${ACCENT}88, ${ACCENT})`,
+          background: `linear-gradient(90deg, ${color}88, ${color})`,
         }}
       />
     </div>
