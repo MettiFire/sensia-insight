@@ -1,14 +1,9 @@
 import { useState } from "react";
-import { Check, Copy, Moon, RotateCcw, Sun, UserRound } from "lucide-react";
+import { Moon, RotateCcw, Sun, UserRound } from "lucide-react";
 import { useTranslation, type Lang } from "@/context/LanguageContext";
 import { useTheme } from "@/context/ThemeContext";
 import { ACCENT, Card, SectionTitle } from "@/components/ui-kit";
-import type {
-  CognitiveMetrics,
-  ConnectionState,
-  GarminRawBiometrics,
-  UserProfile,
-} from "@/types/sensia";
+import type { UserProfile } from "@/types/sensia";
 import { cn } from "@/lib/utils";
 
 const inputClass =
@@ -18,53 +13,15 @@ export function ProfileTab({
   profile,
   onSave,
   onReset,
-  garmin,
-  cognitive,
-  connection,
 }: {
   profile: UserProfile;
   onSave: (p: UserProfile) => void;
   onReset: () => void;
-  garmin: GarminRawBiometrics;
-  cognitive: CognitiveMetrics;
-  connection: ConnectionState;
 }) {
   const { t, lang, setLang } = useTranslation();
   const { theme, setTheme, isDark } = useTheme();
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(profile);
-  const [copied, setCopied] = useState(false);
-
-  const payload = JSON.stringify(
-    {
-      source: "garmin_connect",
-      endpoint: "https://api.sensia.bio/v1/cognitive/stream",
-      connection,
-      raw: garmin,
-      sensia_output: {
-        ...cognitive,
-        cScore: Number(cognitive.cScore.toFixed(1)),
-        memory: Number(cognitive.memory.toFixed(1)),
-        reasoning: Number(cognitive.reasoning.toFixed(1)),
-        attention: Number(cognitive.attention.toFixed(1)),
-        cognitiveStress: Number(cognitive.cognitiveStress.toFixed(1)),
-        arousal: Number(cognitive.arousal.toFixed(3)),
-        valence: Number(cognitive.valence.toFixed(3)),
-      },
-    },
-    null,
-    2,
-  );
-
-  const copy = async () => {
-    try {
-      await navigator.clipboard.writeText(payload);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1600);
-    } catch {
-      /* ignore */
-    }
-  };
 
   const genderLabel =
     profile.gender === "M" ? t("male") : profile.gender === "F" ? t("female") : t("other");
