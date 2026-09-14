@@ -76,6 +76,8 @@ function Sparkline({ data }: { data: { value: number; at: number }[] }) {
         strokeOpacity="0.25"
       />
       {xTickIdx.map((i) => {
+        const point = data[i];
+        if (!point) return null;
         const x = padL + (i / Math.max(1, n - 1)) * iw;
         return (
           <g key={i}>
@@ -95,7 +97,7 @@ function Sparkline({ data }: { data: { value: number; at: number }[] }) {
               fill="currentColor"
               opacity="0.6"
             >
-              {formatTime(data[i].at)}
+              {formatTime(point.at)}
             </text>
           </g>
         );
