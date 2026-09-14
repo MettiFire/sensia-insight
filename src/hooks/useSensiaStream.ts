@@ -70,8 +70,11 @@ function computeCognitive(
 export function useSensiaStream(enabled = true) {
   const [garmin, setGarmin] = useState<GarminRawBiometrics>(initialGarmin);
   const [cognitive, setCognitive] = useState<CognitiveMetrics>(initialCognitive);
-  const [history, setHistory] = useState<number[]>(
-    Array.from({ length: 40 }, (_, i) => 66 + Math.sin(i / 3) * 5),
+  const [history, setHistory] = useState<{ value: number; at: number }[]>(
+    Array.from({ length: 40 }, (_, i) => ({
+      value: 66 + Math.sin(i / 3) * 5,
+      at: Date.now() - (40 - i) * 5000,
+    })),
   );
   const [connection, setConnection] = useState<ConnectionState>({
     isLive: true,
