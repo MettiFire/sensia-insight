@@ -105,7 +105,7 @@ export function useSensiaStream(enabled = true) {
           respiration: Number(drift(g.respiration, 1.4, 9, 22).toFixed(1)),
         };
         setCognitive(computeCognitive(next, prevCognitive.current));
-        setHistory((h) => [...h.slice(-59), next.heartRate]);
+        setHistory((h) => [...h.slice(-59), { value: next.heartRate, at: Date.now() }]);
         return next;
       });
       setConnection((c) => ({
