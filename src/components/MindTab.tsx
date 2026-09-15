@@ -1,4 +1,4 @@
-import { Cpu, Gauge, HeartPulse, Radio, Target, TrendingDown, TrendingUp } from "lucide-react";
+import { Cpu, Gauge, Radio, Target, TrendingDown, TrendingUp } from "lucide-react";
 import { useTranslation } from "@/context/LanguageContext";
 import { ACCENT, Bar, Card, LangToggle, RadialGauge, SectionTitle, ThemeToggle } from "@/components/ui-kit";
 import { stressBadge, type CognitiveMetrics, type ConnectionState, type StressBadge } from "@/types/sensia";
@@ -56,9 +56,11 @@ function MetricCard({
 
 function StressCard({
   value,
+  label,
   badgeLabel,
 }: {
   value: number;
+  label: string;
   badgeLabel: string;
 }) {
   const badge = stressBadge(value);
@@ -83,7 +85,7 @@ function StressCard({
         {Math.round(value)}
       </div>
       <div className="text-[11px] font-medium text-slate-600 dark:text-slate-400">
-        {t_stressLabel}
+        {label}
       </div>
       <Bar value={value} color={color} />
     </Card>
