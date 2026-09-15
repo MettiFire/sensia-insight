@@ -166,7 +166,11 @@ export function MindTab({
       <div>
         <SectionTitle>{t("cognitiveStates")}</SectionTitle>
         <div className="grid grid-cols-2 gap-3">
-          <StressCard value={cognitive.cognitiveStress} badgeLabel={badgeLabel} />
+          <StressCard
+            value={cognitive.cognitiveStress}
+            label={t("cognitiveStress")}
+            badgeLabel={badgeLabel}
+          />
           <MetricCard
             label={t("reasoning")}
             value={cognitive.reasoning}
