@@ -80,8 +80,8 @@ export function Onboarding({ onDone }: { onDone: (p: UserProfile) => void }) {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-5 pb-8">
-      <header className="flex items-center justify-between py-3">
-        <SensiaLogo className="w-24" />
+      <header className="flex items-center justify-end py-3">
+        {step !== 1 ? <SensiaLogo className="mr-auto w-24" /> : null}
         <div className="flex items-center gap-2">
           <LangToggle compact />
           <ThemeToggle compact />
@@ -89,20 +89,22 @@ export function Onboarding({ onDone }: { onDone: (p: UserProfile) => void }) {
       </header>
 
       {step === 1 ? (
-        <div className="flex flex-1 flex-col justify-center gap-6 text-center">
-          <SensiaLogo payoff accent className="mx-auto w-56 max-w-[76vw]" />
-          <div>
-            <h1 className="text-lg font-semibold leading-snug text-slate-900 dark:text-slate-100">
-              {t("tagline")}
-            </h1>
-            <p className="mt-3 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
-              {t("welcomeDesc")}
-            </p>
+        <div className="flex flex-1 flex-col">
+          <div className="flex flex-1 flex-col justify-center gap-6 text-center">
+            <SensiaLogo payoff accent className="mx-auto w-56 max-w-[76vw]" />
+            <div>
+              <h1 className="text-lg font-semibold leading-snug text-slate-900 dark:text-slate-100">
+                {t("tagline")}
+              </h1>
+              <p className="mt-3 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+                {t("welcomeDesc")}
+              </p>
+            </div>
           </div>
           <button
             type="button"
             onClick={() => setStep(2)}
-            className="flex w-full items-center justify-center gap-2 rounded-2xl py-3.5 text-sm font-semibold text-white shadow-lg transition-transform active:scale-[0.98]"
+            className="mb-2 flex w-full items-center justify-center gap-2 rounded-2xl py-3.5 text-sm font-semibold text-white shadow-lg transition-transform active:scale-[0.98]"
             style={{ background: ACCENT }}
           >
             {t("startSetup")} <ArrowRight className="h-4 w-4" />
