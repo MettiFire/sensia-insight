@@ -257,13 +257,6 @@ export function MindTab({
         </div>
       </div>
 
-      <Card>
-        <div className="flex items-center justify-between">
-          <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-            {t("heartRateTrend") ?? t("cognitiveStress")}
-          </p>
-        </div>
-      </Card>
     </div>
   );
 }
