@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { ArrowRight, BadgeCheck, Loader2, Watch, Waves } from "lucide-react";
+import { ArrowRight, BadgeCheck, Loader2, Watch } from "lucide-react";
 import { useTranslation } from "@/context/LanguageContext";
 import { ACCENT, Card, LangToggle, ThemeToggle } from "@/components/ui-kit";
+import { SensiaLogo } from "@/components/SensiaLogo";
 import type { Gender, UserProfile } from "@/types/sensia";
 import { cn } from "@/lib/utils";
 
@@ -80,9 +81,7 @@ export function Onboarding({ onDone }: { onDone: (p: UserProfile) => void }) {
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-5 pb-8">
       <header className="flex items-center justify-between py-3">
-        <span className="text-sm font-bold tracking-[0.3em] text-slate-900 dark:text-slate-100">
-          SENSIA
-        </span>
+        <SensiaLogo className="w-24" />
         <div className="flex items-center gap-2">
           <LangToggle compact />
           <ThemeToggle compact />
@@ -91,19 +90,11 @@ export function Onboarding({ onDone }: { onDone: (p: UserProfile) => void }) {
 
       {step === 1 ? (
         <div className="flex flex-1 flex-col justify-center gap-6 text-center">
-          <div
-            className="mx-auto grid h-20 w-20 place-items-center rounded-3xl"
-            style={{ background: `linear-gradient(140deg, ${ACCENT}, ${ACCENT}55)` }}
-          >
-            <Waves className="h-9 w-9 text-white" />
-          </div>
+          <SensiaLogo payoff accent className="mx-auto w-56 max-w-[76vw]" />
           <div>
-            <h1 className="text-3xl font-black tracking-[0.18em] text-slate-900 dark:text-slate-100">
-              SEN<span style={{ color: ACCENT }}>SIA</span>
-            </h1>
-            <p className="mt-3 text-lg font-semibold leading-snug text-slate-900 dark:text-slate-100">
+            <h1 className="text-lg font-semibold leading-snug text-slate-900 dark:text-slate-100">
               {t("tagline")}
-            </p>
+            </h1>
             <p className="mt-3 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
               {t("welcomeDesc")}
             </p>
