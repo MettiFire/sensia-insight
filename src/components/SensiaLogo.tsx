@@ -29,15 +29,9 @@ export function SensiaLogo({
   const alt = payoff ? "Sensia — Your data to insight." : "Sensia";
 
   return (
-    <picture className={cn("block", className)}>
-      <source media="(prefers-color-scheme: dark)" srcSet={darkLogo.url} />
+    <span className={cn("block", className)}>
       <img src={lightLogo.url} alt={alt} className="h-auto w-full dark:hidden" />
-      <img
-        src={darkLogo.url}
-        alt=""
-        aria-hidden="true"
-        className="hidden h-auto w-full dark:block"
-      />
-    </picture>
+      <img src={darkLogo.url} alt={alt} className="hidden h-auto w-full dark:block" />
+    </span>
   );
 }
