@@ -133,7 +133,7 @@ export function VitalsTab({
   return (
     <div className="flex flex-col gap-5 px-5 pb-6 pt-3">
       <h1 className="text-3xl font-black text-slate-900 dark:text-slate-100">
-        Garmin Vitals
+        Vitals
       </h1>
 
       <Card>
