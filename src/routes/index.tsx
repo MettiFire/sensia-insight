@@ -60,7 +60,9 @@ function SensiaApp() {
             onToggleLive={toggleLive}
           />
         ) : null}
-        {tab === "vitals" ? <VitalsTab garmin={garmin} history={history} /> : null}
+        {tab === "vitals" ? (
+          <VitalsTab garmin={garmin} history={history} respHistory={respHistory} />
+        ) : null}
         {tab === "profile" ? (
           <ProfileTab
             profile={profile}
