@@ -73,6 +73,9 @@ export function useSensiaStream(enabled = true) {
   const [history, setHistory] = useState<number[]>(
     Array.from({ length: 40 }, (_, i) => 66 + Math.sin(i / 3) * 5),
   );
+  const [respHistory, setRespHistory] = useState<number[]>(
+    Array.from({ length: 40 }, (_, i) => 14 + Math.sin(i / 4) * 1.5),
+  );
   const [connection, setConnection] = useState<ConnectionState>({
     isLive: true,
     lastSync: new Date().toISOString(),

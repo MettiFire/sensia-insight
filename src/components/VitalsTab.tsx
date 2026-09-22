@@ -1,9 +1,15 @@
-import { Activity, BatteryCharging, Droplets, Footprints, Gauge, Heart, Info, Moon, Wind } from "lucide-react";
+import { Activity, Footprints, Heart, Info, Moon, Wind } from "lucide-react";
 import { useTranslation } from "@/context/LanguageContext";
-import { ACCENT, Bar, Card, SectionTitle } from "@/components/ui-kit";
+import { ACCENT, Bar, Card } from "@/components/ui-kit";
 import type { GarminRawBiometrics } from "@/types/sensia";
 
-function Sparkline({ data }: { data: number[] }) {
+function Sparkline({
+  data,
+  gradientId,
+}: {
+  data: number[];
+  gradientId: string;
+}) {
   const w = 320;
   const h = 110;
   const padL = 34;
@@ -27,7 +33,7 @@ function Sparkline({ data }: { data: number[] }) {
   return (
     <svg viewBox={`0 0 ${w} ${h}`} className="h-32 w-full">
       <defs>
-        <linearGradient id="hrGrad" x1="0" y1="0" x2="0" y2="1">
+        <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor={ACCENT} stopOpacity="0.45" />
           <stop offset="100%" stopColor={ACCENT} stopOpacity="0" />
         </linearGradient>
@@ -71,7 +77,7 @@ function Sparkline({ data }: { data: number[] }) {
       >
         0s
       </text>
-      <polygon points={area} fill="url(#hrGrad)" />
+      <polygon points={area} fill={`url(#${gradientId})`} />
       <polyline
         points={line}
         fill="none"
@@ -91,41 +97,14 @@ function Sparkline({ data }: { data: number[] }) {
   );
 }
 
-function StatCard({
-  label,
-  value,
-  unit,
-  Icon,
-}: {
-  label: string;
-  value: string | number;
-  unit?: string;
-  Icon: typeof Heart;
-}) {
-  return (
-    <Card className="flex flex-col gap-1.5">
-      <div className="flex items-center gap-2">
-        <Icon className="h-4 w-4" style={{ color: ACCENT }} />
-        <span className="truncate text-[11px] font-medium text-slate-600 dark:text-slate-400">
-          {label}
-        </span>
-      </div>
-      <div className="text-2xl font-bold text-slate-900 dark:text-slate-100">
-        {value}
-        {unit ? (
-          <span className="ml-1 text-xs font-medium text-slate-400">{unit}</span>
-        ) : null}
-      </div>
-    </Card>
-  );
-}
-
 export function VitalsTab({
   garmin,
   history,
+  respHistory,
 }: {
   garmin: GarminRawBiometrics;
   history: number[];
+  respHistory: number[];
 }) {
   const { t } = useTranslation();
   const sleepHours = (garmin.sleepScore / 100) * 8.4;
@@ -151,7 +130,7 @@ export function VitalsTab({
             </span>
           </div>
         </div>
-        <Sparkline data={history} />
+        <Sparkline data={history} gradientId="hrGrad" />
         <div className="flex justify-between text-[11px] text-slate-500 dark:text-slate-400">
           <span>
             {t("hrv")} · {garmin.hrv} {t("ms")}
@@ -159,76 +138,21 @@ export function VitalsTab({
         </div>
       </Card>
 
-      <div className="grid grid-cols-2 gap-3">
-        <Card>
+      <Card>
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <BatteryCharging className="h-4 w-4" style={{ color: ACCENT }} />
-            <span className="text-[11px] font-medium text-slate-600 dark:text-slate-400">
-              {t("bodyBattery")}
+            <Wind className="h-4 w-4" style={{ color: ACCENT }} />
+            <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+              {t("respiration")}
             </span>
           </div>
-          <div className="mt-2 text-2xl font-bold text-slate-900 dark:text-slate-100">
-            {garmin.bodyBattery}
+          <div className="text-2xl font-black text-slate-900 dark:text-slate-100">
+            {garmin.respiration.toFixed(1)}
+            <span className="ml-1 text-xs font-medium text-slate-400">rpm</span>
           </div>
-          <Bar value={garmin.bodyBattery} className="mt-2" />
-        </Card>
-        <Card>
-          <div className="flex items-center gap-2">
-            <Gauge className="h-4 w-4 text-amber-500" />
-            <span className="text-[11px] font-medium text-slate-600 dark:text-slate-400">
-              {t("garminStress")}
-            </span>
-          </div>
-          <div className="mt-2 text-2xl font-bold text-slate-900 dark:text-slate-100">
-            {garmin.stressLevel}
-          </div>
-          <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
-            <div
-              className="h-full rounded-full bg-amber-500 transition-all duration-700"
-              style={{ width: `${garmin.stressLevel}%` }}
-            />
-          </div>
-        </Card>
-      </div>
-
-      <div>
-        <SectionTitle>{t("sleep")}</SectionTitle>
-        <Card>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Moon className="h-4 w-4" style={{ color: ACCENT }} />
-              <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-                {t("sleepScore")}
-              </span>
-            </div>
-            <span className="text-2xl font-bold text-slate-900 dark:text-slate-100">
-              {garmin.sleepScore}
-            </span>
-          </div>
-          <p className="mt-1 text-[11px] text-slate-600 dark:text-slate-400">
-            {t("totalHours")}: {sleepHours.toFixed(1)}h
-          </p>
-          <div className="mt-3 flex h-2.5 overflow-hidden rounded-full">
-            <div className="bg-indigo-600" style={{ width: "24%" }} />
-            <div className="bg-sky-400" style={{ width: "48%" }} />
-            <div className="bg-amber-400" style={{ width: "21%" }} />
-            <div className="bg-slate-400" style={{ width: "7%" }} />
-          </div>
-          <div className="mt-2 grid grid-cols-4 text-center text-[10px] text-slate-500 dark:text-slate-400">
-            {[
-              [t("deep"), "24%", "bg-indigo-600"],
-              [t("lightSleep"), "48%", "bg-sky-400"],
-              [t("rem"), "21%", "bg-amber-400"],
-              [t("awake"), "7%", "bg-slate-400"],
-            ].map(([label, pct, dot]) => (
-              <span key={label} className="flex items-center justify-center gap-1">
-                <span className={`h-1.5 w-1.5 rounded-full ${dot}`} />
-                {label} {pct}
-              </span>
-            ))}
-          </div>
-        </Card>
-      </div>
+        </div>
+        <Sparkline data={respHistory} gradientId="respGrad" />
+      </Card>
 
       <Card>
         <div className="flex items-center justify-between">
@@ -248,15 +172,41 @@ export function VitalsTab({
         <Bar value={(garmin.steps / 10000) * 100} className="mt-3" />
       </Card>
 
-      <div className="grid grid-cols-2 gap-3">
-        <StatCard label={t("spo2")} value={garmin.spo2} unit="%" Icon={Droplets} />
-        <StatCard
-          label={t("respiration")}
-          value={garmin.respiration}
-          unit="rpm"
-          Icon={Wind}
-        />
-      </div>
+      <Card>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Moon className="h-4 w-4" style={{ color: ACCENT }} />
+            <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+              {t("sleepScore")}
+            </span>
+          </div>
+          <span className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+            {garmin.sleepScore}
+          </span>
+        </div>
+        <p className="mt-1 text-[11px] text-slate-600 dark:text-slate-400">
+          {t("totalHours")}: {sleepHours.toFixed(1)}h
+        </p>
+        <div className="mt-3 flex h-2.5 overflow-hidden rounded-full">
+          <div className="bg-indigo-600" style={{ width: "24%" }} />
+          <div className="bg-sky-400" style={{ width: "48%" }} />
+          <div className="bg-amber-400" style={{ width: "21%" }} />
+          <div className="bg-slate-400" style={{ width: "7%" }} />
+        </div>
+        <div className="mt-2 grid grid-cols-4 text-center text-[10px] text-slate-500 dark:text-slate-400">
+          {[
+            [t("deep"), "24%", "bg-indigo-600"],
+            [t("lightSleep"), "48%", "bg-sky-400"],
+            [t("rem"), "21%", "bg-amber-400"],
+            [t("awake"), "7%", "bg-slate-400"],
+          ].map(([label, pct, dot]) => (
+            <span key={label} className="flex items-center justify-center gap-1">
+              <span className={`h-1.5 w-1.5 rounded-full ${dot}`} />
+              {label} {pct}
+            </span>
+          ))}
+        </div>
+      </Card>
 
       <div className="flex gap-3 rounded-2xl border border-[#6d5ffc]/30 bg-[#6d5ffc]/5 p-4">
         <Info className="h-4 w-4 shrink-0" style={{ color: ACCENT }} />
