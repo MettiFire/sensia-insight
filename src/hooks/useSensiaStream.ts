@@ -73,6 +73,9 @@ export function useSensiaStream(enabled = true) {
   const [history, setHistory] = useState<number[]>(
     Array.from({ length: 40 }, (_, i) => 66 + Math.sin(i / 3) * 5),
   );
+  const [respHistory, setRespHistory] = useState<number[]>(
+    Array.from({ length: 40 }, (_, i) => 14 + Math.sin(i / 4) * 1.5),
+  );
   const [connection, setConnection] = useState<ConnectionState>({
     isLive: true,
     lastSync: new Date().toISOString(),
@@ -103,6 +106,7 @@ export function useSensiaStream(enabled = true) {
         };
         setCognitive(computeCognitive(next, prevCognitive.current));
         setHistory((h) => [...h.slice(-59), next.heartRate]);
+        setRespHistory((h) => [...h.slice(-59), next.respiration]);
         return next;
       });
       setConnection((c) => ({
@@ -114,5 +118,5 @@ export function useSensiaStream(enabled = true) {
     return () => clearInterval(id);
   }, [enabled, connection.isLive]);
 
-  return { garmin, cognitive, connection, history, toggleLive };
+  return { garmin, cognitive, connection, history, respHistory, toggleLive };
 }

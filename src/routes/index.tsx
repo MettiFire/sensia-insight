@@ -36,9 +36,8 @@ export const Route = createFileRoute("/")({
 function SensiaApp() {
   const { profile, setProfile, reset, loaded } = useProfile();
   const [tab, setTab] = useState<TabId>("mind");
-  const { garmin, cognitive, connection, history, toggleLive } = useSensiaStream(
-    Boolean(profile),
-  );
+  const { garmin, cognitive, connection, history, respHistory, toggleLive } =
+    useSensiaStream(Boolean(profile));
 
   if (!loaded) return <PhoneFrame>{null}</PhoneFrame>;
 
@@ -61,7 +60,9 @@ function SensiaApp() {
             onToggleLive={toggleLive}
           />
         ) : null}
-        {tab === "vitals" ? <VitalsTab garmin={garmin} history={history} /> : null}
+        {tab === "vitals" ? (
+          <VitalsTab garmin={garmin} history={history} respHistory={respHistory} />
+        ) : null}
         {tab === "profile" ? (
           <ProfileTab
             profile={profile}
