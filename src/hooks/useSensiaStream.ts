@@ -106,6 +106,7 @@ export function useSensiaStream(enabled = true) {
         };
         setCognitive(computeCognitive(next, prevCognitive.current));
         setHistory((h) => [...h.slice(-59), next.heartRate]);
+        setRespHistory((h) => [...h.slice(-59), next.respiration]);
         return next;
       });
       setConnection((c) => ({
@@ -117,5 +118,5 @@ export function useSensiaStream(enabled = true) {
     return () => clearInterval(id);
   }, [enabled, connection.isLive]);
 
-  return { garmin, cognitive, connection, history, toggleLive };
+  return { garmin, cognitive, connection, history, respHistory, toggleLive };
 }
